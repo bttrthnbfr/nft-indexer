@@ -17,6 +17,10 @@ Near account (privatekey & public key)
 - Test account, currenty i use test account to insert NFT to oracle smartcontract (the smartcontract in the testnet too), need gass fee.
 - Main account, this is used to collect NFT from several source (free gass fee because using view call).
 
+Oracle smart contract (address)
+- Deploy the oracle smart contract first to your near account (testnet)
+- See the [oracle-smartcontract](https://github.com/haffjjj/oracle-smartcontract) repo.
+
 ---
 
 ### Redis
