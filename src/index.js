@@ -1,3 +1,4 @@
+/* eslint-disable no-await-in-loop */
 import {
   connect, Contract, KeyPair, keyStores,
 } from 'near-api-js';
@@ -5,6 +6,7 @@ import Queue from 'bull';
 import { createClient } from 'redis';
 import cron from 'node-cron';
 import {
+  arrayChunk,
   collectTokens, getTokenInputKey, insertTokens, parseTokensToValidStandart, updateOwnerOfToken,
 } from './utils';
 import config from './config';
@@ -48,18 +50,17 @@ const processCollecting = async (
   let tokens = await collect(mainAccount, contractAccount);
   tokens = parseTokensToValidStandart(tokens);
 
-  const promises = tokens.map(async (token) => {
+  const ITokens = [];
+
+  // TODO improve loop, use concurency
+  for (let index = 0; index < tokens.length; index += 1) {
+    const token = tokens[index];
     const key = getTokenInputKey(contractAccount.id, token.token_id);
     const owner = token.owner_id;
 
     const previousOwner = await redisClient.get(key);
     if (previousOwner === null) {
-      // push job insert token to queue
-      await insertTokenQueue.add({
-        nftContractID: contractAccount.id,
-        token,
-      });
-
+      ITokens.push(token);
       await redisClient.set(key, owner);
     } else if (previousOwner !== owner) {
       // push job update owner to queue
@@ -71,9 +72,18 @@ const processCollecting = async (
 
       await redisClient.set(key, owner);
     }
+  }
+
+  const chunkTokens = arrayChunk(ITokens, config.maxInsertTokens);
+  const inserTokensPromise = chunkTokens.map(async (chunkToken) => {
+    // push job insert token to oracle smartcontract
+    await insertTokenQueue.add({
+      nftContractID: contractAccount.id,
+      tokens: chunkToken,
+    });
   });
 
-  await Promise.all(promises);
+  await Promise.all(inserTokensPromise);
 };
 
 const main = async () => {
@@ -109,12 +119,12 @@ const main = async () => {
   );
 
   // TODO potentially race condition if the worker slow when processing queue
-  insertTokenQueue.process(10, async (job, done) => {
+  insertTokenQueue.process(config.maxConcurrentJob, async (job, done) => {
     const { data } = job;
-    await insertTokens(oracleContract, data.nftContractID, [data.token]);
+    await insertTokens(oracleContract, data.nftContractID, data.tokens);
     done();
   });
-  updateOwnerQueue.process(async (job, done) => {
+  updateOwnerQueue.process(config.maxConcurrentJob, async (job, done) => {
     const { data } = job;
     await updateOwnerOfToken(oracleContract, data.nftContractID, data.tokenID, data.ownerID);
     done();

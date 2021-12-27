@@ -74,3 +74,15 @@ export const parseTokensToValidStandart = (tokens) => {
 };
 
 export const getTokenInputKey = (nftContractID, tokenID) => `${nftContractID}:${tokenID}`;
+
+export const arrayChunk = (arr, len) => {
+  const chunks = [];
+  let i = 0;
+  const n = arr.length;
+
+  while (i < n) {
+    chunks.push(arr.slice(i, i += len));
+  }
+
+  return chunks;
+};

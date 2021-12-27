@@ -1,7 +1,9 @@
 import 'dotenv/config';
 
 export default {
-  maxLimitTokenCollect: 1, // alon alon due gas fee limit :(
+  maxLimitTokenCollect: 2, // alon alon due gas fee limit :(
+  maxConcurrentJob: 10, // max queue job per execution
+  maxInsertTokens: 2, // max batch(chunk) when insert token to oracle smartcontract
   contractAccounts: [
     {
       id: 'pluminite.near',
@@ -9,15 +11,15 @@ export default {
     },
     {
       id: 'x.paras.near',
-      limit: 25,
+      limit: 24,
     },
     {
       id: 'nft.hhsviewer.near',
-      limit: 35,
+      limit: 34,
     },
   ],
   oracleContract: {
-    id: 'dev-1640603751913-12904201496908',
+    id: process.env.ORACLE_CONTRACT_ID,
   },
   near: {
     mainnet: {
