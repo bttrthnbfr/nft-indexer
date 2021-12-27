@@ -13,6 +13,10 @@ This indexer is not production-ready, I just learned Blockchain stack in just 2 
 - Node JS v15.6.0
 - Docker version 20.10.11, build dea9396
 
+Near account (privatekey & public key)
+- Test account, currenty i use test account to insert NFT to oracle smartcontract (the smartcontract in the testnet too), need gass fee.
+- Main account, this is used to collect NFT from several source (free gass fee because using view call).
+
 ---
 
 ### Redis
