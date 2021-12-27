@@ -25,7 +25,8 @@
     "@babel/register": "^7.13.16",
     "bull": "^4.2.0",
     "dotenv": "^9.0.2",
-    "near-api-js": "^0.44.2"
+    "near-api-js": "^0.44.2",
+    "redis": "^4.0.1"
   },
   "devDependencies": {
     "babel-eslint": "^10.1.0",

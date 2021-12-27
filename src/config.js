@@ -16,6 +16,9 @@ export default {
       limit: 35,
     },
   ],
+  oracleContract: {
+    id: 'dev-1640603751913-12904201496908',
+  },
   near: {
     mainnet: {
       connectConfig: {
@@ -45,5 +48,10 @@ export default {
         publicKey: process.env.TEST_PUBLIC_KEY,
       },
     },
+  },
+  redis: {
+    url: `redis://:@${process.env.REDIS_HOST}:${process.env.REDIS_PORT}`,
+    host: process.env.REDIS_HOST,
+    port: process.env.REDIS_PORT,
   },
 };

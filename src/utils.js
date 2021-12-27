@@ -1,3 +1,4 @@
+/* eslint-disable camelcase */
 import config from './config';
 
 export const collectTokens = async (contract, contractAccount) => {
@@ -7,7 +8,7 @@ export const collectTokens = async (contract, contractAccount) => {
   let i = 0;
   while (i < contractAccount.limit) {
     let tokens = [];
-    console.log('index: ', i);
+    console.log('collect index: ', i);
 
     // retry if fail due gasfee limit
     try {
@@ -35,3 +36,41 @@ export const getTokenByID = async (contract, tokenID) => {
   });
   return token;
 };
+
+export const insertTokens = async (contract, nftContractID, tokens) => {
+  console.log('insert token from: ', nftContractID);
+  await contract.consume_tokens({
+    nft_contract_id: nftContractID,
+    tokens,
+  });
+};
+
+export const updateOwnerOfToken = async (contract, nftContractID, tokenID, ownerID) => {
+  console.log('update owner');
+  await contract.nft_update_owner_of_token({
+    nft_contract_id: nftContractID,
+    token_id: tokenID,
+    owner_id: ownerID,
+  });
+};
+
+export const parseTokensToValidStandart = (tokens) => {
+  const results = tokens.map((token) => {
+    const { approved_account_ids } = token;
+    const new_approved_account_ids = {};
+    const approvedAccountIdsKeys = Object.keys(approved_account_ids);
+
+    approvedAccountIdsKeys.forEach((key) => {
+      new_approved_account_ids[key] = parseInt(approved_account_ids[key], 10);
+    });
+
+    // eslint-disable-next-line no-param-reassign
+    token.approved_account_ids = new_approved_account_ids;
+
+    return token;
+  });
+
+  return results;
+};
+
+export const getTokenInputKey = (nftContractID, tokenID) => `${nftContractID}:${tokenID}`;
