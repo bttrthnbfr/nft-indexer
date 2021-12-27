@@ -8,14 +8,14 @@ export const collectTokens = async (contract, contractAccount) => {
   let i = 0;
   while (i < contractAccount.limit) {
     let tokens = [];
-    console.log('collect index: ', i);
+    console.log(`collect from index: ${i} from ${contractAccount.id}`);
 
     // retry if fail due gasfee limit
     try {
       // eslint-disable-next-line no-await-in-loop
       tokens = await contract.nft_tokens({
         from_index: i.toString(),
-        limit: contractAccount.id === 'pluminite.near' ? maxLimit.toString() : maxLimit,
+        limit: contractAccount.id === 'pluminite.near' ? maxLimit.toString() : maxLimit, // edcase
       });
     } catch (e) {
       console.log(e);

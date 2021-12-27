@@ -109,7 +109,7 @@ const main = async () => {
   );
 
   // TODO potentially race condition if the worker slow when processing queue
-  insertTokenQueue.process(async (job, done) => {
+  insertTokenQueue.process(10, async (job, done) => {
     const { data } = job;
     await insertTokens(oracleContract, data.nftContractID, [data.token]);
     done();
