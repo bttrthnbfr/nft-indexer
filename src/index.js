@@ -3,6 +3,7 @@ import {
 } from 'near-api-js';
 import Queue from 'bull';
 import { createClient } from 'redis';
+import cron from 'node-cron';
 import {
   collectTokens, getTokenInputKey, insertTokens, parseTokensToValidStandart, updateOwnerOfToken,
 } from './utils';
@@ -118,19 +119,26 @@ const main = async () => {
     await updateOwnerOfToken(oracleContract, data.nftContractID, data.tokenID, data.ownerID);
     done();
   });
-
   console.log('success initialization..');
 
-  console.log('collect nfts..');
-  const processPromises = config.contractAccounts.map((contractAccount) => processCollecting(
-    mainAccount,
-    contractAccount,
-    redisClient,
-    insertTokenQueue,
-    updateOwnerQueue,
-  ));
+  const collectFromContracts = async () => {
+    console.log('start collecting..');
+    const processPromises = config.contractAccounts.map((contractAccount) => processCollecting(
+      mainAccount,
+      contractAccount,
+      redisClient,
+      insertTokenQueue,
+      updateOwnerQueue,
+    ));
 
-  await Promise.all(processPromises);
+    await Promise.all(processPromises);
+  };
+
+  // run every 5 minutes
+  collectFromContracts();
+  cron.schedule('*/5 * * * *', async () => {
+    collectFromContracts();
+  });
 };
 
 main();
